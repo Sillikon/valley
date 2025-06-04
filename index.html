@@ -28,6 +28,7 @@
       width: 90%;
       max-width: 400px;
       text-align: center;
+      display: none;
     }
 
     h2 {
@@ -147,9 +148,7 @@
 
       if (user === 'admin' && pass === 'agricontrol123') {
         localStorage.setItem('authenticated', 'true');
-        document.getElementById('login-box').style.display = 'none';
-        document.getElementById('main-content').style.display = 'flex';
-        simulateData();
+        showDashboard();
       } else {
         document.getElementById('error').textContent = 'Неверные имя пользователя или пароль';
       }
@@ -158,7 +157,6 @@
     function toggleMotor() {
       motorRunning = !motorRunning;
       const btn = document.getElementById('controlBtn');
-      const needle = document.getElementById('needle');
 
       if (motorRunning) {
         btn.textContent = 'Стоп';
@@ -180,15 +178,22 @@
       document.getElementById('direction').textContent = 'CW';
       document.getElementById('motor-status').textContent = 'Остановлен';
       document.getElementById('runtime').textContent = '00:00';
-      updateGauge(15); // например, 15 градусов
+      updateGauge(15);
     }
 
-    // Авто вход, если уже залогинен
-    if (localStorage.getItem('authenticated') === 'true') {
+    function showDashboard() {
       document.getElementById('login-box').style.display = 'none';
       document.getElementById('main-content').style.display = 'flex';
       simulateData();
     }
+
+    window.onload = () => {
+      if (localStorage.getItem('authenticated') === 'true') {
+        showDashboard();
+      } else {
+        document.getElementById('login-box').style.display = 'block';
+      }
+    };
   </script>
 </body>
 </html>
