@@ -1,36 +1,116 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valley Control</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgriControl | Valley</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }
+    body {
+      background: url('https://images.pexels.com/photos/3735484/pexels-photo-3735484.jpeg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+    }
+    nav {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 1em 2em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+    }
+    nav .logo {
+      font-size: 1.5em;
+      font-weight: 700;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 2em;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: #fff;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    nav ul li a:hover {
+      color: #ffd700;
+    }
+    .content {
+      padding-top: 100px;
+      text-align: center;
+    }
+    .content h1 {
+      font-size: 3em;
+      margin-bottom: 0.5em;
+      text-shadow: 2px 2px 6px #000;
+    }
+    .control-btn {
+      background: #ffd700;
+      color: #000;
+      font-size: 1.5em;
+      padding: 0.7em 2em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 2px 2px 8px #00000088;
+      transition: all 0.3s ease;
+    }
+    .control-btn:hover {
+      background: #ffa500;
+    }
+    .footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      text-align: center;
+      padding: 1em;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>AgriControl</h1>
-            <nav>
-                <a href="#valley">Valley</a>
-                <a href="#contact">Контакты</a>
-            </nav>
-        </div>
-    </header>
+  <nav>
+    <div class="logo">AgriControl</div>
+    <ul>
+      <li><a href="#">Valley</a></li>
+      <li><a href="#">Контакты</a></li>
+    </ul>
+  </nav>
 
-    <main>
-        <section class="hero">
-            <h2>Управление дождевальной машиной Valley</h2>
-            <p>Надежный контроль с любого устройства</p>
-            <button id="controlBtn">Запустить</button>
-            <p id="status">Статус: Ожидание</p>
-        </section>
-    </main>
+  <div class="content">
+    <h1>Управление дождевальной машиной</h1>
+    <button class="control-btn" id="toggleBtn">Старт</button>
+  </div>
 
-    <footer id="contact">
-        <p>Связь: <a href="mailto:agricontrol@example.com">agricontrol@example.com</a></p>
-    </footer>
+  <div class="footer">
+    Свяжитесь с нами: contact@agricontrol.ru | +7 (000) 123-45-67
+  </div>
 
-    <script src="script.js"></script>
+  <script>
+    let isRunning = false;
+    const button = document.getElementById('toggleBtn');
+
+    button.addEventListener('click', () => {
+      isRunning = !isRunning;
+      button.textContent = isRunning ? 'Стоп' : 'Старт';
+      button.style.background = isRunning ? '#dc143c' : '#ffd700';
+      button.style.color = isRunning ? '#fff' : '#000';
+
+      // Здесь вы можете подключить publish в MQTT по нажатию
+      // mqttClient.publish("valley/control", isRunning ? "start" : "stop")
+    });
+  </script>
 </body>
 </html>
