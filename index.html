@@ -2,40 +2,41 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AgriControl | Вход</title>
   <style>
-    body, html {
+    body {
+      font-family: Arial, sans-serif;
+      background: url('https://images.unsplash.com/photo-1504309092621-4fc0b8d7f8b9') no-repeat center center fixed;
+      background-size: cover;
       margin: 0;
       padding: 0;
-      height: 100%;
-      font-family: 'Segoe UI', sans-serif;
-    }
-
-    body {
-      background: url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
-      background-size: cover;
       display: flex;
       justify-content: center;
       align-items: center;
+      height: 100vh;
+      flex-direction: column;
     }
-
-    #login-box, #main-content {
-      background: rgba(255, 255, 255, 0.95);
+    .box {
+      background: rgba(255, 255, 255, 0.9);
       padding: 30px;
       border-radius: 15px;
       box-shadow: 0 0 20px rgba(0,0,0,0.3);
       width: 90%;
-      max-width: 400px;
-      text-align: center;
-      display: none;
-    }
-
-    h2 {
+      max-width: 600px;
       margin-bottom: 20px;
-      color: #333;
+      transition: all 0.5s ease;
     }
-
+    #login-box {
+      display: block;
+      text-align: center;
+    }
+    #dashboard {
+      display: none;
+      text-align: center;
+    }
+    h2, h3 {
+      margin-bottom: 20px;
+    }
     input {
       padding: 12px;
       margin: 10px 0;
@@ -44,78 +45,69 @@
       border-radius: 5px;
       font-size: 16px;
     }
-
     button {
       padding: 12px;
       width: 100%;
-      background: linear-gradient(to right, #4CAF50, #66bb6a);
+      background: #4CAF50;
       color: white;
       font-size: 16px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: background 0.3s ease, transform 0.2s ease;
     }
-
     button:hover {
-      transform: scale(1.03);
+      background-color: #45a049;
+      transform: scale(1.05);
     }
-
+    #startBtn.stop {
+      background-color: #d9534f;
+    }
     #error {
       color: red;
       margin-top: 10px;
     }
-
-    #dashboard {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
+    #info {
+      display: grid;
+      grid-template-columns: repeat(2, auto);
+      gap: 10px 30px;
+      justify-content: center;
+      margin-bottom: 20px;
     }
-
-    #gauge {
-      width: 100px;
-      height: 100px;
+    #angleDisplay {
+      width: 60px;
+      height: 60px;
+      border: 3px solid #0000FF;
+      border-radius: 50%;
+      margin: 0 auto;
       position: relative;
     }
-
-    #needle {
-      width: 4px;
-      height: 50px;
-      background: black;
+    #anglePointer {
       position: absolute;
-      bottom: 50%;
-      left: 50%;
+      width: 6px;
+      height: 30px;
+      background: black;
+      top: 15px;
+      left: 27px;
       transform-origin: bottom center;
+      transform: rotate(-30deg);
     }
-
-    .info {
-      font-size: 18px;
-      color: #222;
+    #contact {
+      margin-top: 20px;
+      font-size: 14px;
     }
-
-    .start-animation {
-      animation: spin 1s ease-in-out;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(720deg); }
-    }
-
     @media (max-width: 600px) {
-      #main-content, #login-box {
-        padding: 20px;
-        max-width: 90%;
+      #info {
+        grid-template-columns: 1fr;
       }
-      .info {
-        font-size: 16px;
+      #dashboard {
+        width: 95%;
       }
     }
   </style>
 </head>
 <body>
-  <div id="login-box">
+  <div class="box" id="login-box">
     <h2>Вход в систему</h2>
     <input type="text" id="username" placeholder="Имя пользователя">
     <input type="password" id="password" placeholder="Пароль">
@@ -123,77 +115,59 @@
     <p id="error"></p>
   </div>
 
-  <div id="main-content">
-    <h2>Панель управления Valley</h2>
-    <div class="info">Направление: <span id="direction">-</span></div>
-    <div class="info">Статус мотора: <span id="motor-status">-</span></div>
-    <div class="info">Время работы: <span id="runtime">-</span></div>
-    <div class="info">Угол:</div>
-    <div id="gauge">
-      <div id="needle"></div>
+  <div class="box" id="dashboard">
+    <h3>Панель управления Valley</h3>
+    <div id="info">
+      <div><strong>Направление:</strong> <span id="direction">CW</span></div>
+      <div><strong>Статус мотора:</strong> <span id="motorStatus">Остановлен</span></div>
+      <div><strong>Время работы:</strong> <span id="workTime">00:00</span></div>
+      <div><strong>Угол:</strong>
+        <div id="angleDisplay">
+          <div id="anglePointer"></div>
+        </div>
+      </div>
     </div>
-    <button id="controlBtn" onclick="toggleMotor()">Старт</button>
-    <div style="margin-top: 30px; font-size: 14px; color: #555">
-      <p>Связь: +7 (900) 000-00-00</p>
-      <p>Email: support@agricontrol.ru</p>
+    <button id="startBtn" onclick="toggleIrrigation()">Старт</button>
+    <div id="contact">
+      Связь: +7 (900) 000-00-00<br>
+      Email: support@agricontrol.ru
     </div>
   </div>
 
   <script>
-    let motorRunning = false;
-
     function login() {
       const user = document.getElementById('username').value;
       const pass = document.getElementById('password').value;
 
       if (user === 'admin' && pass === 'agricontrol123') {
         localStorage.setItem('authenticated', 'true');
-        showDashboard();
+        document.getElementById('login-box').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
       } else {
         document.getElementById('error').textContent = 'Неверные имя пользователя или пароль';
       }
     }
 
-    function toggleMotor() {
-      motorRunning = !motorRunning;
-      const btn = document.getElementById('controlBtn');
-
-      if (motorRunning) {
+    function toggleIrrigation() {
+      const btn = document.getElementById('startBtn');
+      const motorStatus = document.getElementById('motorStatus');
+      if (btn.textContent === 'Старт') {
         btn.textContent = 'Стоп';
-        btn.classList.add('start-animation');
-        document.getElementById('motor-status').textContent = 'В работе';
-        setTimeout(() => btn.classList.remove('start-animation'), 1000);
+        btn.classList.add('stop');
+        motorStatus.textContent = 'Работает';
       } else {
         btn.textContent = 'Старт';
-        document.getElementById('motor-status').textContent = 'Остановлен';
+        btn.classList.remove('stop');
+        motorStatus.textContent = 'Остановлен';
       }
     }
 
-    function updateGauge(angle) {
-      const needle = document.getElementById('needle');
-      needle.style.transform = `rotate(${angle - 90}deg)`;
-    }
-
-    function simulateData() {
-      document.getElementById('direction').textContent = 'CW';
-      document.getElementById('motor-status').textContent = 'Остановлен';
-      document.getElementById('runtime').textContent = '00:00';
-      updateGauge(15);
-    }
-
-    function showDashboard() {
-      document.getElementById('login-box').style.display = 'none';
-      document.getElementById('main-content').style.display = 'flex';
-      simulateData();
-    }
-
-    window.onload = () => {
+    window.onload = function() {
       if (localStorage.getItem('authenticated') === 'true') {
-        showDashboard();
-      } else {
-        document.getElementById('login-box').style.display = 'block';
+        document.getElementById('login-box').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
       }
-    };
+    }
   </script>
 </body>
 </html>
