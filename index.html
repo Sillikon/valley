@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -74,46 +75,33 @@
       justify-content: center;
       margin-bottom: 20px;
     }
-
-    .angle-widget {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .circle {
-      width: 80px;
-      height: 80px;
-      border: 3px solid #007bff;
+    #angleDisplay {
+      width: 100px;
+      height: 100px;
+      border: 3px solid #0000FF;
       border-radius: 50%;
+      margin: 0 auto;
       position: relative;
-      background: radial-gradient(circle at center, #fff 60%, #e9f1ff 100%);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-
-    .needle {
-      width: 4px;
-      height: 35px;
-      background-color: #111;
+    #anglePointer {
       position: absolute;
-      top: 5px;
-      left: 50%;
+      width: 4px;
+      height: 50px;
+      background: black;
+      top: 10px;
+      left: 48px;
       transform-origin: bottom center;
       transform: rotate(0deg);
       transition: transform 0.5s ease;
     }
-
-    .angle-label {
-      margin-top: 5px;
-      font-size: 16px;
+    #angleText {
+      margin-top: 10px;
       font-weight: bold;
     }
-
     #contact {
       margin-top: 20px;
       font-size: 14px;
     }
-
     @media (max-width: 600px) {
       #info {
         grid-template-columns: 1fr;
@@ -123,6 +111,7 @@
       }
     }
   </style>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 <body>
   <div class="box" id="login-box">
@@ -139,13 +128,12 @@
       <div><strong>Направление:</strong> <span id="direction">CW</span></div>
       <div><strong>Статус мотора:</strong> <span id="motorStatus">Остановлен</span></div>
       <div><strong>Время работы:</strong> <span id="workTime">00:00</span></div>
-      <div><strong>Угол:</strong>
-        <div class="angle-widget">
-          <div class="circle">
-            <div id="needle" class="needle"></div>
-          </div>
-          <div id="angle-value" class="angle-label">0°</div>
+      <div>
+        <strong>Угол:</strong>
+        <div id="angleDisplay">
+          <div id="anglePointer"></div>
         </div>
+        <div id="angleText">0°</div>
       </div>
     </div>
     <button id="startBtn" onclick="toggleIrrigation()">Старт</button>
@@ -183,26 +171,45 @@
       }
     }
 
+    function updateAngle(degrees) {
+      const pointer = document.getElementById('anglePointer');
+      const angleText = document.getElementById('angleText');
+      pointer.style.transform = `rotate(${degrees}deg)`;
+      angleText.textContent = `${degrees}°`;
+    }
+
+    const client = mqtt.connect("wss://ВАШ_ХОСТ.s2.eu.hivemq.cloud:8884/mqtt", {
+      username: "ВАШ_ПОЛЬЗОВАТЕЛЬ",
+      password: "ВАШ_ПАРОЛЬ",
+      connectTimeout: 4000,
+      clean: true,
+      reconnectPeriod: 1000,
+    });
+
+    client.on("connect", () => {
+      console.log("MQTT подключено");
+      client.subscribe("esp32/ugol", (err) => {
+        if (!err) {
+          console.log("Подписан на 'esp32/ugol'");
+        }
+      });
+    });
+
+    client.on("message", (topic, message) => {
+      if (topic === "esp32/ugol") {
+        const angle = parseFloat(message.toString());
+        if (!isNaN(angle)) {
+          updateAngle(angle);
+        }
+      }
+    });
+
     window.onload = function() {
       if (localStorage.getItem('authenticated') === 'true') {
         document.getElementById('login-box').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
       }
     }
-
-    function updateAngle(angle) {
-      const needle = document.getElementById("needle");
-      const label = document.getElementById("angle-value");
-
-      label.textContent = `${angle.toFixed(0)}°`;
-      needle.style.transform = `rotate(${angle}deg)`;
-    }
-
-    // Пример: симулируем изменение угла
-    setInterval(() => {
-      const simulatedAngle = Math.floor(Math.random() * 360);
-      updateAngle(simulatedAngle);
-    }, 3000);
   </script>
 </body>
 </html>
