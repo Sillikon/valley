@@ -1,125 +1,193 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Valley Control - Главная</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <title>AgriControl | Вход</title>
   <style>
-    * {
+    body, html {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-      font-family: 'Roboto', sans-serif;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
     }
+
     body {
-      background: url('https://images.unsplash.com/photo-1528825871115-3581a5387919') no-repeat center center fixed;
+      background: url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
       background-size: cover;
-      min-height: 100vh;
-      color: #fff;
-    }
-    header {
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 20px 40px;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
     }
-    header h1 {
-      font-size: 28px;
-    }
-    nav a {
-      color: #fff;
-      margin-left: 20px;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    nav a:hover {
-      text-decoration: underline;
-    }
-    main {
-      padding: 60px 20px;
+
+    #login-box, #main-content {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      width: 90%;
+      max-width: 400px;
       text-align: center;
     }
+
     h2 {
-      font-size: 36px;
       margin-bottom: 20px;
+      color: #333;
     }
-    .status {
-      font-size: 18px;
+
+    input {
+      padding: 12px;
       margin: 10px 0;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
     }
-    .start-stop-btn {
-      margin-top: 30px;
-      padding: 15px 40px;
-      font-size: 18px;
-      background-color: #28a745;
+
+    button {
+      padding: 12px;
+      width: 100%;
+      background: linear-gradient(to right, #4CAF50, #66bb6a);
+      color: white;
+      font-size: 16px;
       border: none;
-      border-radius: 8px;
+      border-radius: 5px;
       cursor: pointer;
-      color: #fff;
-      transition: background-color 0.3s ease;
+      transition: transform 0.2s;
     }
-    .start-stop-btn.stop {
-      background-color: #dc3545;
+
+    button:hover {
+      transform: scale(1.03);
     }
-    .start-stop-btn:hover {
-      opacity: 0.9;
+
+    #error {
+      color: red;
+      margin-top: 10px;
+    }
+
+    #dashboard {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    #gauge {
+      width: 100px;
+      height: 100px;
+      position: relative;
+    }
+
+    #needle {
+      width: 4px;
+      height: 50px;
+      background: black;
+      position: absolute;
+      bottom: 50%;
+      left: 50%;
+      transform-origin: bottom center;
+    }
+
+    .info {
+      font-size: 18px;
+      color: #222;
+    }
+
+    .start-animation {
+      animation: spin 1s ease-in-out;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(720deg); }
+    }
+
+    @media (max-width: 600px) {
+      #main-content, #login-box {
+        padding: 20px;
+        max-width: 90%;
+      }
+      .info {
+        font-size: 16px;
+      }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>AgriControl</h1>
-    <nav>
-      <a href="#">Valley</a>
-      <a href="#">Контакты</a>
-    </nav>
-  </header>
-  <main>
-    <h2>Управление дождевальной машиной</h2>
-    <div class="status" id="direction">Направление: ---</div>
-    <div class="status" id="motor-status">Мотор: ---</div>
-    <div class="status" id="runtime">Время работы: 00:00</div>
-    <div class="status" id="angle">Угол: ---</div>
-    <button class="start-stop-btn" id="control-btn" onclick="toggleMotor()">СТАРТ</button>
-  </main>
+  <div id="login-box">
+    <h2>Вход в систему</h2>
+    <input type="text" id="username" placeholder="Имя пользователя">
+    <input type="password" id="password" placeholder="Пароль">
+    <button onclick="login()">Войти</button>
+    <p id="error"></p>
+  </div>
 
-  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <div id="main-content">
+    <h2>Панель управления Valley</h2>
+    <div class="info">Направление: <span id="direction">-</span></div>
+    <div class="info">Статус мотора: <span id="motor-status">-</span></div>
+    <div class="info">Время работы: <span id="runtime">-</span></div>
+    <div class="info">Угол:</div>
+    <div id="gauge">
+      <div id="needle"></div>
+    </div>
+    <button id="controlBtn" onclick="toggleMotor()">Старт</button>
+    <div style="margin-top: 30px; font-size: 14px; color: #555">
+      <p>Связь: +7 (900) 000-00-00</p>
+      <p>Email: support@agricontrol.ru</p>
+    </div>
+  </div>
+
   <script>
-    const client = mqtt.connect('wss://03f3df8309314ebdaf9c2d78737996db.s1.eu.hivemq.cloud:8884/mqtt', {
-      username: 'hivemq.webclient.1749021790216',
-      password: '&5Td2xKDChi3J>laE!1;',
-      protocolId: 'MQTT',
-      protocolVersion: 4,
-      reconnectPeriod: 1000
-    });
+    let motorRunning = false;
 
-    const btn = document.getElementById('control-btn');
-    let running = false;
+    function login() {
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
 
-    client.on('connect', () => {
-      client.subscribe('valley/status/#');
-    });
-
-    client.on('message', (topic, message) => {
-      const msg = message.toString();
-      if (topic.endsWith('motor')) {
-        document.getElementById('motor-status').textContent = `Мотор: ${msg}`;
-        running = msg !== 'OFF';
-        btn.textContent = running ? 'СТОП' : 'СТАРТ';
-        btn.classList.toggle('stop', running);
-      } else if (topic.endsWith('runtime')) {
-        document.getElementById('runtime').textContent = `Время работы: ${msg}`;
-      } else if (topic.endsWith('angle')) {
-        document.getElementById('angle').textContent = `Угол: ${msg}°`;
-      } else if (topic.endsWith('allowed_direction')) {
-        document.getElementById('direction').textContent = `Направление: ${msg}`;
+      if (user === 'admin' && pass === 'agricontrol123') {
+        localStorage.setItem('authenticated', 'true');
+        document.getElementById('login-box').style.display = 'none';
+        document.getElementById('main-content').style.display = 'flex';
+        simulateData();
+      } else {
+        document.getElementById('error').textContent = 'Неверные имя пользователя или пароль';
       }
-    });
+    }
 
     function toggleMotor() {
-      client.publish('valley/command', running ? 'stop' : 'start');
+      motorRunning = !motorRunning;
+      const btn = document.getElementById('controlBtn');
+      const needle = document.getElementById('needle');
+
+      if (motorRunning) {
+        btn.textContent = 'Стоп';
+        btn.classList.add('start-animation');
+        document.getElementById('motor-status').textContent = 'В работе';
+        setTimeout(() => btn.classList.remove('start-animation'), 1000);
+      } else {
+        btn.textContent = 'Старт';
+        document.getElementById('motor-status').textContent = 'Остановлен';
+      }
+    }
+
+    function updateGauge(angle) {
+      const needle = document.getElementById('needle');
+      needle.style.transform = `rotate(${angle - 90}deg)`;
+    }
+
+    function simulateData() {
+      document.getElementById('direction').textContent = 'CW';
+      document.getElementById('motor-status').textContent = 'Остановлен';
+      document.getElementById('runtime').textContent = '00:00';
+      updateGauge(15); // например, 15 градусов
+    }
+
+    // Авто вход, если уже залогинен
+    if (localStorage.getItem('authenticated') === 'true') {
+      document.getElementById('login-box').style.display = 'none';
+      document.getElementById('main-content').style.display = 'flex';
+      simulateData();
     }
   </script>
 </body>
