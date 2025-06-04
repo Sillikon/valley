@@ -1,116 +1,126 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AgriControl | Valley</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Valley Control - Главная</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Montserrat', sans-serif;
+      font-family: 'Roboto', sans-serif;
     }
     body {
-    background-image: url('img/pole.jpg');
+      background: url('https://images.unsplash.com/photo-1528825871115-3581a5387919') no-repeat center center fixed;
       background-size: cover;
+      min-height: 100vh;
       color: #fff;
     }
-    nav {
-      background: rgba(0, 0, 0, 0.6);
-      padding: 1em 2em;
+    header {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 20px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: fixed;
-      width: 100%;
-      top: 0;
-      z-index: 1000;
     }
-    nav .logo {
-      font-size: 1.5em;
-      font-weight: 700;
+    header h1 {
+      font-size: 28px;
     }
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 2em;
-    }
-    nav ul li a {
+    nav a {
+      color: #fff;
+      margin-left: 20px;
       text-decoration: none;
-      color: #fff;
       font-weight: 500;
-      transition: color 0.3s;
     }
-    nav ul li a:hover {
-      color: #ffd700;
+    nav a:hover {
+      text-decoration: underline;
     }
-    .content {
-      padding-top: 100px;
+    main {
+      padding: 60px 20px;
       text-align: center;
     }
-    .content h1 {
-      font-size: 3em;
-      margin-bottom: 0.5em;
-      text-shadow: 2px 2px 6px #000;
+    h2 {
+      font-size: 36px;
+      margin-bottom: 20px;
     }
-    .control-btn {
-      background: #ffd700;
-      color: #000;
-      font-size: 1.5em;
-      padding: 0.7em 2em;
+    .status {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+    .start-stop-btn {
+      margin-top: 30px;
+      padding: 15px 40px;
+      font-size: 18px;
+      background-color: #28a745;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
-      box-shadow: 2px 2px 8px #00000088;
-      transition: all 0.3s ease;
-    }
-    .control-btn:hover {
-      background: #ffa500;
-    }
-    .footer {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.5);
       color: #fff;
-      text-align: center;
-      padding: 1em;
+      transition: background-color 0.3s ease;
+    }
+    .start-stop-btn.stop {
+      background-color: #dc3545;
+    }
+    .start-stop-btn:hover {
+      opacity: 0.9;
     }
   </style>
 </head>
 <body>
-  <nav>
-    <div class="logo">AgriControl</div>
-    <ul>
-      <li><a href="#">Valley</a></li>
-      <li><a href="#">Контакты</a></li>
-    </ul>
-  </nav>
+  <header>
+    <h1>AgriControl</h1>
+    <nav>
+      <a href="#">Valley</a>
+      <a href="#">Контакты</a>
+    </nav>
+  </header>
+  <main>
+    <h2>Управление дождевальной машиной</h2>
+    <div class="status" id="direction">Направление: ---</div>
+    <div class="status" id="motor-status">Мотор: ---</div>
+    <div class="status" id="runtime">Время работы: 00:00</div>
+    <div class="status" id="angle">Угол: ---</div>
+    <button class="start-stop-btn" id="control-btn" onclick="toggleMotor()">СТАРТ</button>
+  </main>
 
-  <div class="content">
-    <h1>Управление дождевальной машиной</h1>
-    <button class="control-btn" id="toggleBtn">Старт</button>
-  </div>
-
-  <div class="footer">
-    Свяжитесь с нами: contact@agricontrol.ru | +7 (000) 123-45-67
-  </div>
-
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <script>
-    let isRunning = false;
-    const button = document.getElementById('toggleBtn');
-
-    button.addEventListener('click', () => {
-      isRunning = !isRunning;
-      button.textContent = isRunning ? 'Стоп' : 'Старт';
-      button.style.background = isRunning ? '#dc143c' : '#ffd700';
-      button.style.color = isRunning ? '#fff' : '#000';
-
-      // Здесь вы можете подключить publish в MQTT по нажатию
-      // mqttClient.publish("valley/control", isRunning ? "start" : "stop")
+    const client = mqtt.connect('wss://03f3df8309314ebdaf9c2d78737996db.s1.eu.hivemq.cloud:8884/mqtt', {
+      username: 'hivemq.webclient.1749021790216',
+      password: '&5Td2xKDChi3J>laE!1;',
+      protocolId: 'MQTT',
+      protocolVersion: 4,
+      reconnectPeriod: 1000
     });
+
+    const btn = document.getElementById('control-btn');
+    let running = false;
+
+    client.on('connect', () => {
+      client.subscribe('valley/status/#');
+    });
+
+    client.on('message', (topic, message) => {
+      const msg = message.toString();
+      if (topic.endsWith('motor')) {
+        document.getElementById('motor-status').textContent = `Мотор: ${msg}`;
+        running = msg !== 'OFF';
+        btn.textContent = running ? 'СТОП' : 'СТАРТ';
+        btn.classList.toggle('stop', running);
+      } else if (topic.endsWith('runtime')) {
+        document.getElementById('runtime').textContent = `Время работы: ${msg}`;
+      } else if (topic.endsWith('angle')) {
+        document.getElementById('angle').textContent = `Угол: ${msg}°`;
+      } else if (topic.endsWith('allowed_direction')) {
+        document.getElementById('direction').textContent = `Направление: ${msg}`;
+      }
+    });
+
+    function toggleMotor() {
+      client.publish('valley/command', running ? 'stop' : 'start');
+    }
   </script>
 </body>
 </html>
