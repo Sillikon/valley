@@ -74,28 +74,46 @@
       justify-content: center;
       margin-bottom: 20px;
     }
-    #angleDisplay {
-      width: 60px;
-      height: 60px;
-      border: 3px solid #0000FF;
+
+    .angle-widget {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .circle {
+      width: 80px;
+      height: 80px;
+      border: 3px solid #007bff;
       border-radius: 50%;
-      margin: 0 auto;
       position: relative;
+      background: radial-gradient(circle at center, #fff 60%, #e9f1ff 100%);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-    #anglePointer {
+
+    .needle {
+      width: 4px;
+      height: 35px;
+      background-color: #111;
       position: absolute;
-      width: 6px;
-      height: 30px;
-      background: black;
-      top: 15px;
-      left: 27px;
+      top: 5px;
+      left: 50%;
       transform-origin: bottom center;
-      transform: rotate(-30deg);
+      transform: rotate(0deg);
+      transition: transform 0.5s ease;
     }
+
+    .angle-label {
+      margin-top: 5px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
     #contact {
       margin-top: 20px;
       font-size: 14px;
     }
+
     @media (max-width: 600px) {
       #info {
         grid-template-columns: 1fr;
@@ -122,8 +140,11 @@
       <div><strong>Статус мотора:</strong> <span id="motorStatus">Остановлен</span></div>
       <div><strong>Время работы:</strong> <span id="workTime">00:00</span></div>
       <div><strong>Угол:</strong>
-        <div id="angleDisplay">
-          <div id="anglePointer"></div>
+        <div class="angle-widget">
+          <div class="circle">
+            <div id="needle" class="needle"></div>
+          </div>
+          <div id="angle-value" class="angle-label">0°</div>
         </div>
       </div>
     </div>
@@ -168,6 +189,20 @@
         document.getElementById('dashboard').style.display = 'block';
       }
     }
+
+    function updateAngle(angle) {
+      const needle = document.getElementById("needle");
+      const label = document.getElementById("angle-value");
+
+      label.textContent = `${angle.toFixed(0)}°`;
+      needle.style.transform = `rotate(${angle}deg)`;
+    }
+
+    // Пример: симулируем изменение угла
+    setInterval(() => {
+      const simulatedAngle = Math.floor(Math.random() * 360);
+      updateAngle(simulatedAngle);
+    }, 3000);
   </script>
 </body>
 </html>
